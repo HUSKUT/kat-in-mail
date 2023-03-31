@@ -29,12 +29,15 @@ router.get('/', function (req, res, next) {
 
 router.post('/kim/send', async function (req, res) {
     console.log(req.body.token)
+
+    let pplToSend = process.env.SENDGRID_TO_EMAIL.split(';');
     if (req.body.token === process.env.MAIL_TOKEN) {
         await generateCat();
         console.log('html', html)
         const msg = {
-            to: process.env.SENDGRID_TO_EMAIL,
+            to: pplToSend,
             from: {
+                name: 'Kat in Mail',
                 email: process.env.SENDGRID_FROM_EMAIL
             },
             subject: 'Dagelijkse kat',
@@ -44,7 +47,7 @@ router.post('/kim/send', async function (req, res) {
         res.send('Hello World');
 
         sgMail
-            .send(msg)
+            .sendMultiple(msg)
             .then((response) => {
                 console.log('response', response[0].statusCode)
                 // console.log(response[0].headers)
