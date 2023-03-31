@@ -2,6 +2,10 @@ var express = require('express');
 var router = express.Router();
 const fetch = require("node-fetch");
 
+const dotenv = require('dotenv');
+
+dotenv.config();
+
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
@@ -30,6 +34,7 @@ router.post('/kim/send', async function (req, res) {
                 email: process.env.SENDGRID_FROM_EMAIL
             },
             subject: 'Dagelijkse kat',
+            text: 'Dagelijkse kat',
             html: html,
         }
 
@@ -39,11 +44,11 @@ router.post('/kim/send', async function (req, res) {
         sgMail
             .send(msg)
             .then((response) => {
-                console.log(response[0].statusCode)
-                console.log(response[0].headers)
+                // console.log(response[0].statusCode)
+                // console.log(response[0].headers)
             })
             .catch((error) => {
-                console.error(error)
+                console.error(error.response.body)
             })
     } else {
         res.send('Invalid token, doei.');
