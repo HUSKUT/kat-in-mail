@@ -1,13 +1,49 @@
 var express = require('express');
 var router = express.Router();
 const fetch = require("node-fetch");
-
-const dotenv = require('dotenv');
-
-dotenv.config();
-
+const firebase = require("firebase-admin");
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+
+const dotenv = require('dotenv');
+dotenv.config();
+const firebaseConfig = {
+    "type": process.env.FIREBASE_ACC_TYPE,
+    "project_id": process.env.FIREBASE_PROJECT_ID,
+    "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
+    "private_key": process.env.FIREBASE_PRIVATE_KEY,
+    "client_email": process.env.FIREBASE_CLIENT_EMAIL,
+    "client_id": process.env.FIREBASE_CLIENT_ID,
+    "auth_uri": process.env.FIREBASE_AUTH_URI,
+    "token_uri": process.env.FIREBASE_TOKEN_URI,
+    "auth_provider_x509_cert_url": process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+    "client_x509_cert_url": process.env.FIREBASE_CLIENT_X509_CERT_URL
+
+};
+
+let mails = [];
+
+async function initFirebase() {
+// Initialize Firebase
+    const app = firebase.initializeApp({
+        credential: firebase.credential.cert(firebaseConfig),
+        databaseURL: process.env.FIRESTONE_DATABASE_URL
+    });
+// Initialize Cloud Firestore and get a reference to the service
+
+    const store = firebase.firestore(app);
+    try {
+        await store.collection("/users").get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                mails.push(doc.data().email);
+            });
+        });
+    } catch (e) {
+        console.error("Error adding document: ", e);
+    }
+}
+
+initFirebase().then(r => console.log('connection made'));
 
 let html;
 
@@ -18,7 +54,6 @@ async function generateCat() {
             html = '<h1>Dagelijkse kat</h1>'
             html += '<img src="' + data[0].url + '">';
         });
-
     return html;
 }
 
@@ -28,14 +63,11 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/kim/send', async function (req, res) {
-    console.log(req.body.token)
-
-    let pplToSend = process.env.SENDGRID_TO_EMAIL.split(';');
     if (req.body.token === process.env.MAIL_TOKEN) {
         await generateCat();
         console.log('html', html)
         const msg = {
-            to: pplToSend,
+            to: mails,
             from: {
                 name: 'Kat in Mail',
                 email: process.env.SENDGRID_FROM_EMAIL
@@ -44,8 +76,7 @@ router.post('/kim/send', async function (req, res) {
             html: html,
         }
 
-        res.send('Hello World');
-
+        res.send('Sent mails!');
         sgMail
             .sendMultiple(msg)
             .then((response) => {
