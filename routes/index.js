@@ -10,10 +10,26 @@ const {applicationDefault} = require("firebase-admin/app");
 dotenv.config();
 let mails = [];
 
+
+    const firebaseConfig = process.env.FIREBASE_CONFIG ?? firebase.credential.cert({
+        "type": process.env.FIREBASE_ACC_TYPE,
+        "project_id": process.env.FIREBASE_PROJECT_ID,
+        "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
+        "private_key": process.env.FIREBASE_PRIVATE_KEY,
+        "client_email": process.env.FIREBASE_CLIENT_EMAIL,
+        "client_id": process.env.FIREBASE_CLIENT_ID,
+        "auth_uri": process.env.FIREBASE_AUTH_URI,
+        "token_uri": process.env.FIREBASE_TOKEN_URI,
+        "auth_provider_x509_cert_url": process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+        "client_x509_cert_url": process.env.FIREBASE_CLIENT_X509_CERT_URL
+    }) // For prod, or local dev
+// stupid workaround because i suck at this
+// TODO: fix this
+
 async function initFirebase() {
 // Initialize Firebase
     const app = firebase.initializeApp({
-        credential: applicationDefault(),
+        credential: firebaseConfig,
         databaseURL: process.env.FIRESTORE_DATABASE_URL
     });
 // Initialize Cloud Firestore and get a reference to the service
