@@ -11,7 +11,7 @@ dotenv.config();
 let mails = [];
 
 
-    const firebaseConfig = process.env.FIREBASE_CONFIG ?? firebase.credential.cert({
+    const firebaseConfig =  !!process.env.FIREBASE_CONFIG ? firebase.credential.cert(process.env.FIREBASE_CONFIG) : firebase.credential.cert({
         "type": process.env.FIREBASE_ACC_TYPE,
         "project_id": process.env.FIREBASE_PROJECT_ID,
         "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
