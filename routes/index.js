@@ -7,7 +7,6 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 const dotenv = require('dotenv');
 const {applicationDefault} = require("firebase-admin/app");
-const {defaultAppStore} = require("firebase-admin/lib/app/lifecycle");
 dotenv.config();
 let mails = [];
 
