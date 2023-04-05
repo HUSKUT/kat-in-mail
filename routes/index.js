@@ -29,7 +29,7 @@ async function initFirebase() {
             });
         });
     } catch (e) {
-        console.error("Error adding document: ", e);
+        console.error("Error getting document: ", e);
     }
 }
 
@@ -75,6 +75,9 @@ router.post('/kim/send', async function (req, res) {
             })
             .catch((error) => {
                 console.error(error)
+                for (let i = 0; i < error.body.length; i++) {
+                    console.log(error.body[i])
+                }
             })
     } else {
         res.send('Invalid token, doei.');
