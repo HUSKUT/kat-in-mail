@@ -77,7 +77,7 @@ router.post('/kim/send', async function (req, res) {
         sgMail
             .sendMultiple(mails)
             .then((response) => {
-                console.log('response', response)
+                console.log('response', response[0])
             })
             .catch((error) => {
                 console.log('error', error.response.body.errors)
