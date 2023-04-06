@@ -11,6 +11,8 @@ dotenv.config();
 let mails = [];
 let catimg;
 
+let store;
+
 async function generateCat() {
     await fetch('https://api.thecatapi.com/v1/images/search?size=full').then((response) => response.json())
         .then((data) => {
@@ -27,36 +29,45 @@ async function initFirebase() {
         databaseURL: process.env.FIRESTORE_DATABASE_URL
     });
 // Initialize Cloud Firestore and get a reference to the service
-    const store = firebase.firestore(app);
-    try {
-        await store.collection("/users").get().then(async (querySnapshot) => {
+    store = firebase.firestore(app);
 
-            querySnapshot.forEach((doc) => {
-                console.log("Document data:", doc.data().email);
-                mails.push(
-                    {
-                        from: {
-                            name: 'Kat in Mail',
-                            email: process.env.SENDGRID_FROM_EMAIL
-                        },
-                        template_id: process.env.SENDGRID_TEMPLATE_ID,
-                        subject: 'Dagelijkse kat',
-                        personalizations: [
-                            {
-                                to: [doc.data().email],
-                                subject: 'Dagelijkse kat',
-                                dynamic_template_data: {
-                                    USERID: doc.id,
-                                    CATIMAGE: catimg
-                                }
-                            }],
-                    }
-                );
+}
+
+
+    async function getCollection() {
+        await generateCat();
+        try {
+            await store.collection("/users").get().then(async (querySnapshot) => {
+
+                querySnapshot.forEach((doc) => {
+                    console.log("Document data:", doc.data().email);
+                    mails.push(
+                        {
+                            from: {
+                                name: 'Kat in Mail',
+                                email: process.env.SENDGRID_FROM_EMAIL
+                            },
+                            template_id: process.env.SENDGRID_TEMPLATE_ID,
+                            subject: 'Dagelijkse kat',
+                            personalizations: [
+                                {
+                                    to: [doc.data().email],
+                                    subject: 'Dagelijkse kat',
+                                    dynamic_template_data: {
+                                        USERID: doc.id,
+                                        CATIMAGE: catimg
+                                    },
+                                    headers: {
+                                        'X-Entity-Ref-ID': Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+                                    }
+                                }],
+                        }
+                    );
+                });
             });
-        });
-    } catch (e) {
-        console.error("Error getting document: ", e);
-    }
+        } catch (e) {
+            console.error("Error getting document: ", e);
+        }
 }
 initFirebase().then(r => console.log('connection made'));
 router.get('/', function (req, res, next) {
@@ -73,7 +84,8 @@ router.get('/kim/unsubscribe', function (req, res, next) {
 });
 
 router.post('/kim/send', async function (req, res) {
-    await generateCat();
+    await getCollection();
+
     if (req.body.token === process.env.MAIL_TOKEN) {
         res.send('Sent mails!');
         sgMail
