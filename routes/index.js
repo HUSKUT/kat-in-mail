@@ -32,6 +32,7 @@ async function initFirebase() {
         await store.collection("/users").get().then(async (querySnapshot) => {
 
             querySnapshot.forEach((doc) => {
+                console.log("Document data:", doc.data().email);
                 mails.push(
                     {
                         from: {
@@ -72,6 +73,7 @@ router.get('/kim/unsubscribe', function (req, res, next) {
 });
 
 router.post('/kim/send', async function (req, res) {
+    await generateCat();
     if (req.body.token === process.env.MAIL_TOKEN) {
         res.send('Sent mails!');
         sgMail
