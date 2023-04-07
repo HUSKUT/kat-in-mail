@@ -20,8 +20,12 @@ async function generateCat() {
             catimg = data[0].url;
         });
 }
+try {
+catimg = await generateCat();
 
-catimg = generateCat();
+} catch (e) {
+    console.log(e);
+}
 async function initFirebase() {
 // Initialize Firebase
     const app = firebase.initializeApp({
