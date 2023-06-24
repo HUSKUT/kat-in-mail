@@ -1,4 +1,4 @@
-##Kat in Mail
+## Kat in Mail
 
 Every workday, at 9PM CET/CEST this little neat piece of code sends out a mail with an image of a cat.
 
