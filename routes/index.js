@@ -75,7 +75,7 @@ router.get('/', function (req, res, next) {
 });
 router.get('/image', async function (req, res, next) {
   await generateCat();
-  fetch(catimg).then((resp) => {
+  get(catimg, (resp) => {
     res.writeHead(200, { 'content-type': 'image/jpeg' });
     resp.pipe(res);
   });
