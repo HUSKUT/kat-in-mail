@@ -18,7 +18,6 @@ async function generateCat() {
   await fetch("https://api.thecatapi.com/v1/images/search?size=full")
     .then((response) => response.json())
     .then((data) => {
-      console.log(data[0].url);
       catimg = data[0].url;
     });
 }
