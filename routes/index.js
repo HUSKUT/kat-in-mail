@@ -15,7 +15,7 @@ let catimg;
 let store;
 
 async function generateCat() {
-  await fetch('https://api.thecatapi.com/v1/images/search', { body: new URLSearchParams({ size: 'full', mime_types: 'png'  }) })
+  await fetch('https://api.thecatapi.com/v1/images/search', { body: new URLSearchParams({ size: 'full', mime_types: 'jpg'  }) })
     .then((response) => response.json())
     .then((data) => {
       catimg = data[0].url;
